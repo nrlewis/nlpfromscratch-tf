@@ -1,0 +1,11 @@
+<PAD>
+<UNK>
+.
+brown
+dog
+fox
+jumped
+laxy
+over
+quick
+the
