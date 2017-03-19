@@ -6,7 +6,7 @@ def add_loss_var(W, lambda_):
   weight_decay = tf.multiply(tf.nn.l2_loss(W), lambda_, name=W.op.name + '_loss')
   tf.add_to_collection('losses', weight_decay)
 
-def softmax_loss(logits, labels): 
+def reg_softmax_loss(logits, labels): 
 
   with tf.name_scope('loss'): 
     cross_ent = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, 
