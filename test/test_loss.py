@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from nlpfromscratch.loss import add_loss_var, softmax_loss
+from nlpfromscratch.loss import add_loss_var, reg_softmax_loss
 
 class LossTest(tf.test.TestCase): 
   
@@ -90,7 +90,7 @@ class LossTest(tf.test.TestCase):
 
       sess.run(tf.global_variables_initializer())
       losses = tf.get_collection('losses') 
-      total_loss = sess.run(softmax_loss(logits, labels))
+      total_loss = sess.run(reg_softmax_loss(logits, labels))
       self.assertEqual( np.float32, type(total_loss))
       self.assertEqual( (), total_loss.shape)
 

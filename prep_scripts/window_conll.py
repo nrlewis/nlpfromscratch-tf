@@ -3,7 +3,7 @@ import argparse
 import pandas as pd
 import random
 import string
-
+import json 
 PUNCT = set(string.punctuation)
 
 PAD_TOKEN = '<PAD>'
@@ -67,7 +67,7 @@ def window_sent(df, winlen, extra_feat=None):
 
     
 def main(args):
-  df = pd.read_csv('../data/conll2000/test.txt', sep=' ', 
+  df = pd.read_csv(args.inpath, sep=' ', 
                   skip_blank_lines=False, names=['token', 'pos', 'chunk'])
 
   # split into sentence from blank rows
@@ -84,6 +84,15 @@ def main(args):
 
   sent_ids = df.sent_id.unique()
   dfs = []
+
+  if args.vocabjson: 
+    vocab = ['<PAD>','<UNK>'] +  sorted(df['token'].unique())
+    labels = sorted(df['label'].unique())
+    features = ['<PAD>','<UNK>'] +  sorted(df['caps'].unique())
+    outjson = {'vocab':vocab, 'features':features, 'labels':labels}
+    with open('vocab.json', 'w') as out: 
+       out.write(json.dumps(outjson, indent=2))
+
   for sent_id in sent_ids: 
     print 'windowing sentence %d' %sent_id
     sent_df = df[df.sent_id == sent_id]
@@ -96,9 +105,9 @@ def main(args):
     train = dfs[:train_size]
     valid = dfs[train_size:]
     train_df = pd.concat(train)
-    train_df.to_csv('train.csv', index=False)
+    train_df.to_csv('train_w%d.csv' %args.winlen, index=False)
     valid_df = pd.concat(valid)
-    valid_df.to_csv('valid.csv', index=False)
+    valid_df.to_csv('valid._w%d.csv' %args.winlen, index=False)
 
   else: 
     all_dfs = pd.concat(dfs)
@@ -117,6 +126,8 @@ if __name__ == '__main__':
       help='length of the window')
   parser.add_argument('-v', '--valid', type=float, default=None, 
       help='proportion to split into valid set')
+  parser.add_argument('-j', '--vocabjson', action='store_true', default=True, 
+      help='dump a file for the vocabulary vocab.json')
 
   args = parser.parse_args()
   main(args)

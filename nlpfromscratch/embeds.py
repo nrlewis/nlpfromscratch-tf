@@ -50,3 +50,11 @@ class Embeddings(object):
 
 
     return input_seq
+
+  def embed_visualization(summary_writer, log_dir): 
+    config = projector.ProjectorConfig()
+    # You can add multiple embeddings. Here we add only one.
+    embedding = config.embeddings.add()
+    embedding.tensor_name = self.name
+    # Link this tensor to its metadata file (e.g. labels).
+    embedding.metadata_path = os.path.join(LOG_DIR, 'metadata.tsv')

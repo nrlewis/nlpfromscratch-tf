@@ -4,15 +4,39 @@ import numpy as np
 
 class CSVReader(object):
 
-  def __init__(self, filepath, batch_size, num_feats):
+  def __init__(self, filepath, batch_size):
+    ''' Read in CSV. 
+    The format of the csv fshould be: 
+    <tokens><features><label>.  ie., 
+
+    if there are N words, and I features per word :
+    w1,w2,w3,...,wn,f1_1,f1_2,f2_1,f2_2,...fn_i,label
+
+    i.e, lets say we had two features per word, capitialization and suffix, 
+        and a part of speech label for the center word: 
+    
+    w_-1, w_0, w_1, caps_-1, suff_-1, caps_0, suff_0, caps_1, suff_1, label
+    the , dog, ate, TITLE  , he     , LOWER , og    , LOWER , at    , NOUN
+    
+    w_0 is the word to tag with the label. caps_0 and suff_0 are its
+    capitalization and suffix, respectively
+   
+    The headers for words MUST be prefix w_<i>, a "w" followed relative position
+    of the center. 
+
+    the headers for features MUST be prefix <feat_name>_<i>.
+    '''
+    
     self.filepath = filepath
     self.batch_size = batch_size  
-    self.num_feats = num_feats
     self.df = pd.read_csv(filepath)
     
     self.word_cols = [c for c in self.df.columns if c.startswith('w_')]
     self.seq_len = len(self.word_cols)
-    self.feat_cols = [c for c in self.df.columns if not c.startswith('w_') and not c == 'label']  
+    non_feats = set(self.word_cols + ['label'])
+    self.feat_cols = list(set(self.df.columns.difference(non_feats)))
+    self.num_feats = len(set([c[:c.find('_')] for c in self.feat_cols]))
+
     # sanity check
     assert len(self.feat_cols) == len(self.word_cols) * self.num_feats
      
@@ -47,6 +71,7 @@ if __name__ == '__main__':
   feats = []
   toks = []
   labels = []
+
 
   for t,f,l in csvreader.batcher(1): 
     print t

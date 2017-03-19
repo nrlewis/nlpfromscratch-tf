@@ -1,4 +1,5 @@
 import tensorflow as tf
+import json 
 
 class MultiVocab(object): 
   ''' This class tracks vocabularies and embedding  variables 
@@ -7,27 +8,31 @@ class MultiVocab(object):
       <UNK>
       The default for unknown values will always be 1, and the PAD token
       will always be 0
+    
   '''
 
-  def __init__(self, vocab_path, feat_path, labels_path): 
-
-    self.vocab = tf.contrib.lookup.string_to_index_table_from_file(
-            vocabulary_file=vocab_path, num_oov_buckets=0, default_value=1)
-    self.vocab_inv = tf.contrib.lookup.index_to_string_table_from_file(
-            vocabulary_file=vocab_path, default_value="<UNK>")
+  def __init__(self, vocab_path):
+    vocab_j = json.loads(open(vocab_path).read())
+    vocab_t = tf.constant(vocab_j['vocab'])
+    self.vocab = tf.contrib.lookup.string_to_index_table_from_tensor(
+            mapping=vocab_t, num_oov_buckets=0, default_value=1)
+    self.vocab_inv = tf.contrib.lookup.index_to_string_table_from_tensor(
+            mapping=vocab_t, default_value="<UNK>")
     
     # total hack. tF makes the size a tensor, and cant use it to build graphs
-    self.vocab_size = len(open(vocab_path).read().splitlines())
+    self.vocab_size = len(vocab_j['vocab'])
 
-    self.feats = tf.contrib.lookup.string_to_index_table_from_file(
-            vocabulary_file=feat_path, num_oov_buckets=0, default_value=1)
-    self.feats_inv = tf.contrib.lookup.index_to_string_table_from_file(
-            vocabulary_file=feat_path, default_value="<UNK>")
-    self.feats_size = len(open(feat_path).read().splitlines())
-  
-    self.labels= tf.contrib.lookup.string_to_index_table_from_file(
-            vocabulary_file=labels_path, num_oov_buckets=0, default_value=1)
-    self.labels_inv= tf.contrib.lookup.index_to_string_table_from_file(
-            vocabulary_file=labels_path, default_value="<UNK>")
+    feats_t = tf.constant(vocab_j['features'])
+    self.feats = tf.contrib.lookup.string_to_index_table_from_tensor(
+            mapping=feats_t, num_oov_buckets=0, default_value=1)
+    self.feats_inv = tf.contrib.lookup.index_to_string_table_from_tensor(
+            mapping=feats_t, default_value="<UNK>")
+    self.feats_size = len(vocab_j['features'])
 
-    self.num_classes = len(open(labels_path).read().splitlines())
+    labels_t = tf.constant(vocab_j['labels']) 
+    self.labels= tf.contrib.lookup.string_to_index_table_from_tensor(
+            mapping=labels_t, num_oov_buckets=0, default_value=1)
+    self.labels_inv= tf.contrib.lookup.index_to_string_table_from_tensor(
+            mapping=labels_t, default_value="<UNK>")
+
+    self.num_classes = len(vocab_j['labels'])

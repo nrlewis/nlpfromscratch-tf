@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from nlpfromscratch.mlp import mlp
+from nlpfromscratch.mlp import linear
 
 class MLPTest(tf.test.TestCase): 
   
@@ -13,11 +13,11 @@ class MLPTest(tf.test.TestCase):
     n_hidden = 10
 
     input_batch = tf.placeholder(tf.float32, shape=(batch_size, input_dim))
-    hidden = mlp(input_batch, n_hidden)
+    wx_plus_b = linear(input_batch, n_hidden, 'test')
 
     with self.test_session() as sess: 
       sess.run(tf.global_variables_initializer())
-      logits = sess.run(hidden, feed_dict={input_batch:input_})
+      logits = sess.run(wx_plus_b, feed_dict={input_batch:input_})
       self.assertAllEqual((batch_size, n_hidden), logits.shape) 
       losses = tf.get_collection('losses')
       self.assertEqual(len(losses), 1) 

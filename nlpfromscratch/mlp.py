@@ -1,7 +1,8 @@
 import tensorflow as tf
+from loss import add_loss_var
 import summaries
 
-def mlp(input_batch, n_hidden, lambda_=0.001, name='MLP'): 
+def linear(input_batch, n_hidden, name, lambda_=0.001): 
 
   shape = input_batch.get_shape()
   batch_size = shape[0].value
@@ -16,8 +17,10 @@ def mlp(input_batch, n_hidden, lambda_=0.001, name='MLP'):
         initializer=tf.constant_initializer(0.0)
         )
 
-    hidden = tf.nn.relu(tf.matmul(input_batch, weights) + biases, name='g')
     add_loss_var(weights, lambda_)
-
     summaries.activation_summary(weights)
-  return hidden
+    linear = tf.matmul(input_batch, weights) + biases
+
+  return linear 
+
+

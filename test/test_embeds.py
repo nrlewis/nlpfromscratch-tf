@@ -16,15 +16,13 @@ class ReaderAndEmbedding(tf.test.TestCase):
     batch_size = 10
     word_dim = 3
     feat_dim = 2
-    num_feats = 1
-    dataset = os.path.join(data_dir, 'sample.csv')
-    vocab_path = os.path.join(data_dir, 'vocab')
-    feats_path = os.path.join(data_dir, 'feats')
-    labels_path = os.path.join(data_dir, 'labels')
+    dataset = os.path.join(data_dir, 'train_w3_sample.csv')
+    vocab_path = os.path.join(data_dir, 'sample_vocab.json')
 
-    multi_vocab = MultiVocab( vocab_path, feats_path, labels_path)
-    csvreader = CSVReader(dataset, batch_size, num_feats)
-    embeddings = Embeddings(multi_vocab,word_dim, feat_dim, num_feats)
+    multi_vocab = MultiVocab( vocab_path)
+    csvreader = CSVReader(dataset, batch_size)
+    num_feats = csvreader.num_feats
+    embeddings = Embeddings(multi_vocab,word_dim, feat_dim,num_feats )
 
     seq_len = csvreader.seq_len
 
@@ -41,7 +39,7 @@ class ReaderAndEmbedding(tf.test.TestCase):
       for tokens, features, labels in csvreader.batcher(1): 
         feed_dict = {tokens_pl:tokens, features_pl:features, labels_pl:labels}
         input_ = sess.run([encoded_input], feed_dict=feed_dict)
-        print input_    
+        #print input_    
         self.assertAllEqual((batch_size, input_dim), input_[0].shape)
         
 
