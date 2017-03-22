@@ -65,10 +65,65 @@ def window_sent(df, winlen, extra_feat=None):
   newdf = pd.DataFrame(data=data, columns=new_columns)
   return newdf
 
-    
+def prep_window(df): 
+
+  sent_ids = df.sent_id.unique()
+  dfs = []
+
+  for sent_id in sent_ids: 
+    print 'windowing sentence %d' %sent_id
+    sent_df = df[df.sent_id == sent_id]
+    windowed = window_sent(sent_df, args.winlen)
+    dfs.append(windowed)
+
+  return dfs
+
+def prep_sentence_conv(df): 
+  ''' 
+  output sentence for convolution.  each sentence is output with 
+  relative position information from the classifying token
+  
+  output for 'The quick brown fox' for a POS tagger. the label at the 
+  end applies to the token at pos_0
+
+  The quick brown fox TITLE pos_0  LOWER pos_1  LOWER pos_2  LOWER pos_3 DET 
+  The quick brown fox TITLE pos_-1 LOWER pos_0  LOWER pos_1  LOWER pos_2 ADJ 
+  The quick brown fox TITLE pos_-2 LOWER pos_-1 LOWER pos_0  LOWER pos_1 ADJ 
+  The quick brown fox TITLE pos_-3 LOWER pos_-2 LOWER pos_-1 LOWER pos_0 NOUN 
+
+  Also put padding for  sents below MAX_SEQ_LEN and truncate if over
+
+  '''
+  # Median sentence len in training set is 24 tokens, 90 percentile is 40, 
+  SEQ_LEN = 40
+
+  sent_ids = df.sent_id.unique()
+  dfs = []
+
+  for sent_id in sent_ids: 
+    print 'expanding sentence %d' %sent_id
+    sent_df = df[df.sent_id == sent_id]
+    windowed = sent_expand(sent_df, SEQ_LEN)
+    dfs.append(windowed)
+
+  return dfs
+
+
+
+def split_and_print(df, suffix, args):
+  random.shuffle(dfs)
+  train_size = int(len(dfs) * (1 - args.valid))
+  train = dfs[:train_size]
+  valid = dfs[train_size:]
+  train_df = pd.concat(train)
+  train_df.to_csv('train' + suffix, index=False)
+  valid_df = pd.concat(valid)
+  valid_df.to_csv('valid' + suffix, index=False)
+
+
+
 def main(args):
-  df = pd.read_csv(args.inpath, sep=' ', 
-                  skip_blank_lines=False, names=['token', 'pos', 'chunk'])
+  df = pd.read_csv(args.inpath, sep=' ', skip_blank_lines=False, names=['token', 'pos', 'chunk'])
 
   # split into sentence from blank rows
   df['sent_id'] = df.T.isnull().all().cumsum()
@@ -82,9 +137,6 @@ def main(args):
   df['label'] = df[args.label]
   # window the input by sentence
 
-  sent_ids = df.sent_id.unique()
-  dfs = []
-
   if args.vocabjson: 
     vocab = ['<PAD>','<UNK>'] +  sorted(df['token'].unique())
     labels = sorted(df['label'].unique())
@@ -92,26 +144,21 @@ def main(args):
     outjson = {'vocab':vocab, 'features':features, 'labels':labels}
     with open('vocab.json', 'w') as out: 
        out.write(json.dumps(outjson, indent=2))
-
-  for sent_id in sent_ids: 
-    print 'windowing sentence %d' %sent_id
-    sent_df = df[df.sent_id == sent_id]
-    windowed = window_sent(sent_df, args.winlen)
-    dfs.append(windowed)
+  
+  dfs = None
+  suffix = ''
+  if args.sentence: 
+    dfs = prep_sentence_conv(df)
+    suffix = '_sent.csv'
+  else:
+    dfs = prep_window(df)
+    suffix = '_w%d.csv'%args.winlen
 
   if args.valid: 
-    random.shuffle(dfs)
-    train_size = int(len(dfs) * (1 - args.valid))
-    train = dfs[:train_size]
-    valid = dfs[train_size:]
-    train_df = pd.concat(train)
-    train_df.to_csv('train_w%d.csv' %args.winlen, index=False)
-    valid_df = pd.concat(valid)
-    valid_df.to_csv('valid._w%d.csv' %args.winlen, index=False)
-
+    split_and_print(dfs, suffix)
   else: 
     all_dfs = pd.concat(dfs)
-    all_dfs.to_csv(args.inpath + '.csv', index=False)
+    all_dfs.to_csv(args.inpath + suffix, index=False)
     
 
 if __name__ == '__main__': 
@@ -128,6 +175,9 @@ if __name__ == '__main__':
       help='proportion to split into valid set')
   parser.add_argument('-j', '--vocabjson', action='store_true', default=True, 
       help='dump a file for the vocabulary vocab.json')
+
+  parser.add_argument('-s', '--sentence', type=int, default=0, 
+      help='Prepare conll data for sentence convolution')
 
   args = parser.parse_args()
   main(args)

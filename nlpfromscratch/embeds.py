@@ -1,4 +1,6 @@
 import tensorflow as tf
+import json 
+import os
 
 class Embeddings(object): 
   
@@ -51,10 +53,25 @@ class Embeddings(object):
 
     return input_seq
 
-  def embed_visualization(summary_writer, log_dir): 
+  def embed_visualization(summary_writer, log_dir, vocab_json_path): 
+    ''' Write vocab and features to a file for embedding visualization'''
+
+    vocab_j = json.loads(open(vocab_path).read())
+    vocab_path = os.path.join(log_dir, 'vocab')
+    features_path = os.path.join(log_dir, 'features')
+    
+    with open(os.path.join(vocab_path), 'w') as out:
+      out.write('\n'.join(vocab_j['vocab']))
+
+    with open(os.path.join(features_path), 'w') as out:
+      out.write('\n'.join(vocab_j['features']))
+
+
     config = projector.ProjectorConfig()
-    # You can add multiple embeddings. Here we add only one.
-    embedding = config.embeddings.add()
-    embedding.tensor_name = self.name
-    # Link this tensor to its metadata file (e.g. labels).
-    embedding.metadata_path = os.path.join(LOG_DIR, 'metadata.tsv')
+    vocab_embedding = config.embeddings.add()
+    vocab_embedding.tensor_name = self.word_embs.name
+    vocab_embedding.metadata_path =  vocab_path
+
+    features_embedding = config.embeddings.add()
+    features_embedding.tensor_name = self.feat_embs.name
+    features_embedding.metadata_path =  features_path
