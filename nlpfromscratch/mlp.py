@@ -1,6 +1,6 @@
 import tensorflow as tf
 from loss import add_loss_var
-import summaries
+from summaries import activation_summary 
 
 def linear(input_batch, n_hidden, name, lambda_=0.001): 
 
@@ -18,8 +18,8 @@ def linear(input_batch, n_hidden, name, lambda_=0.001):
         )
 
     add_loss_var(weights, lambda_)
-    summaries.activation_summary(weights)
-    linear = tf.matmul(input_batch, weights) + biases
+    activation_summary(weights)
+    linear = tf.nn.bias_add(tf.matmul(input_batch, weights),  biases)
 
   return linear 
 

@@ -6,6 +6,7 @@ from nlpfromscratch.embeds import Embeddings
 from nlpfromscratch.mlp import linear
 from nlpfromscratch.loss import reg_softmax_loss
 from nlpfromscratch.args import parser
+from nlpfromscratch.convnet import conv_max
 import os 
 
 
@@ -35,6 +36,16 @@ def run(FLAGS):
     # encode windowed input 
     embeddings = Embeddings(multi_vocab, FLAGS.word_dim, FLAGS.feat_dim, num_feats)
     encoded_input = embeddings.encode(tokens_pl, features_pl)
+
+    if FLAGS.sent_conv:
+      # expand for input into convolution ayer
+      expand_4_conv = tf.expand_dims(encoded_input, -1)
+      # convolutional layer
+      sent_encoding = conv_max(expand_4_conv, FLAGS.kernel_ht, FLAGS.n_kernels)
+
+      # this is really ugly to reuse a variable name from the computational 
+      # graph, but it saves a lot of code rewrites :) 
+      encoded_input = sent_encoding
 
     # MLP Feed Forward
     wx_plus_b = linear(encoded_input, FLAGS.n_hidden, 'hidden', FLAGS.lambda_)

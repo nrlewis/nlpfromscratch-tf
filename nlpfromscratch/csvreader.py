@@ -15,7 +15,7 @@ class CSVReader(object):
     i.e, lets say we had two features per word, capitialization and suffix, 
         and a part of speech label for the center word: 
     
-    w_-1, w_0, w_1, caps_-1, suff_-1, caps_0, suff_0, caps_1, suff_1, label
+    w_-1, w_0, w_1, f_caps_-1, f_suff_-1, f_caps_0, f_suff_0, f_caps_1, f_suff_1, label
     the , dog, ate, TITLE  , he     , LOWER , og    , LOWER , at    , NOUN
     
     w_0 is the word to tag with the label. caps_0 and suff_0 are its
@@ -34,8 +34,8 @@ class CSVReader(object):
     self.word_cols = [c for c in self.df.columns if c.startswith('w_')]
     self.seq_len = len(self.word_cols)
     non_feats = set(self.word_cols + ['label'])
-    self.feat_cols = list(set(self.df.columns.difference(non_feats)))
-    self.num_feats = len(set([c[:c.find('_')] for c in self.feat_cols]))
+    self.feat_cols = [c for c in self.df.columns if c.startswith('f_')]
+    self.num_feats = len(self.feat_cols) / len(self.word_cols)
 
     # sanity check
     assert len(self.feat_cols) == len(self.word_cols) * self.num_feats
