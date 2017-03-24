@@ -29,16 +29,16 @@ class Embeddings(object):
 
     shape = tokens.get_shape()
     batch_size = shape[0].value
-    num_toks = shape[1].value 
+    seq_len = shape[1].value  # num of tokens per input
     
-    with tf.name_scope('WindowedEncoder'):
+    with tf.name_scope('TextEncoder'):
 
       # convert strings to ids
       encoded_tokens = self.multi_vocab.vocab.lookup(tokens)
       encoded_features = self.multi_vocab.feats.lookup(features)
 
       # reshap features so that we have a list of features per token
-      shaped_features = tf.reshape(encoded_features, (batch_size, num_toks, self.num_feats))
+      shaped_features = tf.reshape(encoded_features, (batch_size, seq_len, self.num_feats))
 
       # Convert int token ids to dense vectors via lookup table
       word_lookup = tf.nn.embedding_lookup(self.word_embs, encoded_tokens)
@@ -46,12 +46,17 @@ class Embeddings(object):
 
       # Concatnate dense vectors into single input vector (batched)
       # first reshape feature vectors, concating along last dimension
-      feat_flat = tf.reshape(feat_lookup, (batch_size, num_toks, -1))
+      feat_flat = tf.reshape(feat_lookup, (batch_size, seq_len, -1))
       word_feats = tf.concat([word_lookup, feat_flat], axis=2)
       input_seq = tf.reshape(word_feats, [batch_size, -1])
 
 
     return input_seq
+
+  def encode4conv(self, tokens, features, batch_size, seq_len):   
+    # reshape to be batch, seq_len, emb_dim, 1
+    sent_encoding = tf.reshape(two_d_input, (batch_size, seq_len, -1, 1))
+    return sent_encoding
 
   def embed_visualization(summary_writer, log_dir, vocab_json_path): 
     ''' Write vocab and features to a file for embedding visualization'''

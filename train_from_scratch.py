@@ -33,20 +33,20 @@ def run(FLAGS):
     multi_vocab = MultiVocab(FLAGS.vocab_path)
     label_lookup = multi_vocab.labels.lookup(labels_pl)
     
-    # encode windowed input 
+    # init word emebedings
     embeddings = Embeddings(multi_vocab, FLAGS.word_dim, FLAGS.feat_dim, num_feats)
     encoded_input = embeddings.encode(tokens_pl, features_pl)
 
     if FLAGS.sent_conv:
-      # expand for input into convolution ayer
-      expand_4_conv = tf.expand_dims(encoded_input, -1)
-      # convolutional layer
-      sent_encoding = conv_max(expand_4_conv, FLAGS.kernel_ht, FLAGS.n_kernels)
+      # for convlution, reshape input to fit conv2d function and pass
+      conv_encoded = tf.reshape(encoded_input, (FLAGS.batch_size, seq_len, -1, 1))
+      sent_encoding = conv_max(conv_encoded, FLAGS.kernel_ht, FLAGS.n_kernels)
 
-      # this is really ugly to reuse a variable name from the computational 
-      # graph, but it saves a lot of code rewrites :) 
+      # this is ugly to rename a computational graph operation, but .. prettire
+      # than a new script 
       encoded_input = sent_encoding
 
+   
     # MLP Feed Forward
     wx_plus_b = linear(encoded_input, FLAGS.n_hidden, 'hidden', FLAGS.lambda_)
     hidden = tf.nn.relu(wx_plus_b)
