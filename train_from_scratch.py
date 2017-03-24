@@ -52,7 +52,7 @@ def run(FLAGS):
     wx_plus_b = linear(encoded_input, FLAGS.n_hidden, 'hidden', FLAGS.lambda_)
     hidden = tf.nn.relu(wx_plus_b)
     logits = linear(hidden, multi_vocab.num_classes, 'classify', FLAGS.lambda_)
-    prediction = tf.nn.softmax(logits)
+    predict = multi_vocab.labels_inv.lookup(tf.nn.softmax(logits))
 
     # Loss and Train
     loss = reg_softmax_loss(logits, label_lookup)
