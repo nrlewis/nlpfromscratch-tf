@@ -9,6 +9,8 @@ class MultiVocab(object):
       The default for unknown values will always be 1, and the PAD token
       will always be 0
     
+    For this class I went with the TF implementations, but I'm not sure
+    it's usefule if I don't combine it with TFRecords
   '''
 
   def __init__(self, vocab_path):
@@ -29,10 +31,10 @@ class MultiVocab(object):
             mapping=feats_t, default_value="<UNK>")
     self.feats_size = len(vocab_j['features'])
 
-    labels_t = tf.constant(vocab_j['labels']) 
+    self.labels_t = tf.constant(vocab_j['labels']) 
     self.labels= tf.contrib.lookup.string_to_index_table_from_tensor(
-            mapping=labels_t, num_oov_buckets=0, default_value=1)
+            mapping=self.labels_t, num_oov_buckets=0, default_value=1)
     self.labels_inv= tf.contrib.lookup.index_to_string_table_from_tensor(
-            mapping=labels_t, default_value="<UNK>")
+            mapping=self.labels_t, default_value="<UNK>")
 
     self.num_classes = len(vocab_j['labels'])

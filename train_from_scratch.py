@@ -7,6 +7,7 @@ from nlpfromscratch.mlp import linear
 from nlpfromscratch.loss import reg_softmax_loss
 from nlpfromscratch.args import parser
 from nlpfromscratch.convnet import conv_max
+from nlpfromscrtach.evaluation import metrics, prf_eval
 import os 
 
 
@@ -32,7 +33,7 @@ def run(FLAGS):
     # vocabulary lookups
     multi_vocab = MultiVocab(FLAGS.vocab_path)
     label_lookup = multi_vocab.labels.lookup(labels_pl)
-    
+    metrics(multi_vocab.labels_inv.keys())    
     # init word emebedings
     embeddings = Embeddings(multi_vocab, FLAGS.word_dim, FLAGS.feat_dim, num_feats)
     encoded_input = embeddings.encode(tokens_pl, features_pl)
@@ -41,7 +42,7 @@ def run(FLAGS):
       # for convlution, reshape input to fit conv2d function and pass
       conv_encoded = tf.reshape(encoded_input, (FLAGS.batch_size, seq_len, -1, 1))
       sent_encoding = conv_max(conv_encoded, FLAGS.kernel_ht, FLAGS.n_kernels)
-
+      
       # this is ugly to rename a computational graph operation, but .. prettire
       # than a new script 
       encoded_input = sent_encoding

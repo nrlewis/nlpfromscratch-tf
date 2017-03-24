@@ -13,6 +13,6 @@ def metrics(labels):
       with tf.variable_scope(metric): 
         for label in labels: 
           m = tf.get_variable(label, 1, initializer=tf.constant_initializer(0.0))
-          
+          tf.add_to_collection('metrics', m)          
 
 
