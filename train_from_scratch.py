@@ -59,6 +59,13 @@ def run(FLAGS):
     grad = tf.train.GradientDescentOptimizer(FLAGS.init_lr)
     train_op = grad.minimize(loss, global_step=global_step)   
 
+
+    # the summaries
+    summary = tf.summary.merge_all()
+    summary_writer = tf.summary.FileWriter(FLAGS.logdir, sess.graph)
+    embeddings.embed_visualilzation(summary_writer, FLAGS.log_dir, 
+        FLAGS.vocab_path)
+
     sess.run(tf.global_variables_initializer())
     sess.run(tf.tables_initializer())
     for tokens, features, labels in train_reader.batcher(FLAGS.max_epochs): 
@@ -66,7 +73,12 @@ def run(FLAGS):
       step_loss, gs, _   = sess.run([loss, global_step, train_op], 
                                     feed_dict=feed_dict)
       
+      if gs % 10 == 0: 
+        print gs, step_loss
+
       if gs % 100 == 0: 
+        summ = sess.run(summary)
+        summary_writer.add_summary(summ)
         print gs, step_loss
 
 if __name__ == '__main__': 
