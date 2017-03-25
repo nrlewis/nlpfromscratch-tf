@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.contrib.tensorboard.plugins import projector
 import json 
 import os
 
@@ -58,10 +59,11 @@ class Embeddings(object):
     sent_encoding = tf.reshape(two_d_input, (batch_size, seq_len, -1, 1))
     return sent_encoding
 
-  def embed_visualization(summary_writer, log_dir, vocab_json_path): 
+  def embed_visualization(self, summary_writer, log_dir, vocab_json_path): 
     ''' Write vocab and features to a file for embedding visualization'''
 
-    vocab_j = json.loads(open(vocab_path).read())
+    vocab_j = json.loads(open(vocab_json_path).read())
+
     vocab_path = os.path.join(log_dir, 'vocab')
     features_path = os.path.join(log_dir, 'features')
     
@@ -80,3 +82,5 @@ class Embeddings(object):
     features_embedding = config.embeddings.add()
     features_embedding.tensor_name = self.feat_embs.name
     features_embedding.metadata_path =  features_path
+
+    projector.visualize_embeddings(summary_writer, config)

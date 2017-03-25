@@ -15,4 +15,5 @@ def reg_softmax_loss(logits, labels):
     reg_loss = tf.add_n(tf.get_collection('losses'))
     total_loss = tf.add(avg_loss, reg_loss)
 
+  tf.summary.scalar('loss', total_loss)
   return total_loss

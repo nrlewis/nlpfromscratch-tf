@@ -31,10 +31,11 @@ class MultiVocab(object):
             mapping=feats_t, default_value="<UNK>")
     self.feats_size = len(vocab_j['features'])
 
-    self.labels_t = tf.constant(vocab_j['labels']) 
+    
+    self._labels =  vocab_j['labels']
     self.labels= tf.contrib.lookup.string_to_index_table_from_tensor(
-            mapping=self.labels_t, num_oov_buckets=0, default_value=1)
+            mapping=tf.constant(self._labels), num_oov_buckets=0, default_value=1)
     self.labels_inv= tf.contrib.lookup.index_to_string_table_from_tensor(
-            mapping=self.labels_t, default_value="<UNK>")
+            mapping=tf.constant(self._labels), default_value="<UNK>")
 
     self.num_classes = len(vocab_j['labels'])

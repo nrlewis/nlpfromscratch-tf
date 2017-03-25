@@ -11,6 +11,13 @@ PUNCT = set(string.punctuation)
 PAD_TOKEN = '<PAD>'
 seq_len = 40 
 
+
+pos_replace = { 'pos': {
+      "#":'PUNCT', "$":'PUNCT', "''":'PUNCT', "(":'PUNCT', ")":'PUNCT',
+      ",":'PUNCT', ".":'PUNCT', ":":'PUNCT', 'PRP$':'PRPPOSS', 'WP$':'WPPOSS',
+      "``":'PUNCT',  
+      }}
+
 def almost(row):
   ''' apply the "almost" part of almost from scratch.  create a column
   that contains the tokens capitalization .  Only difference from acutal 
@@ -215,9 +222,13 @@ def main(args):
   # set all tokens to lower case
   df['token'] = df.token.str.lower()
   
+  # replace labels the class with TF variable naming
+  df.replace(pos_replace, inplace=True)
+  
   # set label and remove unecessary cols
   df['label'] = df[args.label]
-  # window the input by sentence
+  
+  
 
   # print out the features for use in TF
   if args.vocabjson: 
@@ -239,10 +250,10 @@ def main(args):
   if args.sentence: 
     seq_len = args.sentence
     dfs = prep_sentence_conv(df, seq_len)
-    suffix = '_sent.csv'
+    suffix = '_%s_sent.csv' %args.label
   else:
     dfs = prep_window(df)
-    suffix = '_w%d.csv'%args.winlen
+    suffix = '_%s_w%d.csv'%(args.label, args.winlen)
 
   if args.valid: 
     split_and_print(dfs, suffix, args)
@@ -269,7 +280,7 @@ if __name__ == '__main__':
       help='dump a file for the vocabulary vocab.json')
 
   parser.add_argument('-s', '--sentence', type=int, default=None, 
-      help='Prepare conll data for sentence convolution')
+      help='prep for sentence convolution. Pss in Sequence Length of Sentence. Recommend 40')
 
   args = parser.parse_args()
   main(args)
