@@ -52,7 +52,9 @@ def run(FLAGS):
     wx_plus_b = linear(encoded_input, FLAGS.n_hidden, 'hidden', FLAGS.lambda_)
     hidden = tf.nn.relu(wx_plus_b)
     logits = linear(hidden, multi_vocab.num_classes, 'classify', FLAGS.lambda_)
-    predict = multi_vocab.labels_inv.lookup(tf.argmax(tf.nn.softmax(logits), axis=1))
+    with tf.name_scope('predict'):
+      predict = multi_vocab.labels_inv.lookup(
+                  tf.argmax(tf.nn.softmax(logits), axis=1))
 
     # Loss and Train
     loss = reg_softmax_loss(logits, label_lookup)
@@ -77,7 +79,7 @@ def run(FLAGS):
                                     feed_dict=feed_dict)
       
       if gs % 10 == 0: 
-        print gs, step_loss
+        print gs, FLAGS.epochs, step_loss
 
       if gs % 500 == 0: 
         print 'evaluating'
