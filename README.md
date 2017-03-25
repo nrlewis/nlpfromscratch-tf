@@ -1,7 +1,8 @@
 # nlpfromscratch-tf
 Tensorflow implementation of NLP From Scratch (https://arxiv.org/abs/1103.0398) 
 
-# Quickstart for Sentence Convolution
+# Quickstart
+## Sentence Convolution
 1. clone repo and get requirements (pandas mostly)
 ```bash
 git clone https://github.com/nrlewis/nlpfromscratch-tf.git
@@ -30,8 +31,7 @@ tensorboard --logdir .
 ```
 		
 
-
-# Quickstart for Windowed NLP
+## Windowed NLP
 1. clone repo and get requirements 
 ```bash
 git clone https://github.com/nrlewis/nlpfromscratch-tf.git
