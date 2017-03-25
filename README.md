@@ -31,3 +31,30 @@ tensorboard --logdir .
 		
 
 
+# Quickstart for Windowed NLP
+1. clone repo and get requirements 
+```bash
+git clone https://github.com/nrlewis/nlpfromscratch-tf.git
+cd nlpfromscratch-tf
+pip install -r requirements.txt
+```
+2. prep CONLL data for POS Tagging. Creates 'caps' features and windowing 
+of size 3 split %30 into validation set
+```bash
+mkdir -p conlldata/win # create data directory
+python prep_scripts/prep_conll.py data/conll2000/train.txt conlldata/win -w 3 -v .3
+```
+3. run the training 
+```bash
+mkdir win_log 
+python train_from_scratch.py \
+	win_log\
+	conlldata/win/train_pos_w3.csv \
+	conlldata/win/valid_pos_w3.csv \
+	conlldata/win/vocab.json
+```
+4. Check out tensorboard
+```bash
+cd win_log
+tensorboard --logdir . 
+```
