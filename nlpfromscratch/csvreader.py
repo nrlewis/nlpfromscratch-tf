@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 import random 
 import pandas as pd
 import numpy as np
@@ -35,7 +38,7 @@ class CSVReader(object):
     self.seq_len = len(self.word_cols)
     non_feats = set(self.word_cols + ['label'])
     self.feat_cols = [c for c in self.df.columns if c.startswith('f_')]
-    self.num_feats = len(self.feat_cols) / len(self.word_cols)
+    self.num_feats = int(len(self.feat_cols) / len(self.word_cols))
 
     # sanity check
     assert len(self.feat_cols) == len(self.word_cols) * self.num_feats
@@ -74,6 +77,6 @@ if __name__ == '__main__':
 
 
   for t,f,l in csvreader.batcher(1): 
-    print t
-    print f
-    print l
+    print( t)
+    print( f)
+    print( l)

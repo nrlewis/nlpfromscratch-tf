@@ -1,6 +1,7 @@
 import tensorflow as tf
-from loss import add_loss_var
-from summaries import activation_summary 
+
+from .loss import add_loss_var
+from .summaries import activation_summary 
 
 def linear(input_batch, n_hidden, name, lambda_=0.001): 
 

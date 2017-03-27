@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import tensorflow as tf
 import numpy as np
 from nlpfromscratch.vocab import  MultiVocab
@@ -41,8 +45,8 @@ class VocabReader(tf.test.TestCase):
       sess.run(tf.global_variables_initializer())
       sess.run(tf.tables_initializer())
       for tokens, features, labels in csvreader.batcher(1): 
-        #print tokens[0]
-        #print features[0]
+        #print (tokens[0])
+        #print (features[0])
         feed_dict = {tokens_pl:tokens, features_pl:features, labels_pl:labels}
         t,f,l= sess.run([enc_tokens, enc_features, enc_labels], feed_dict=feed_dict)
         #print t[0]

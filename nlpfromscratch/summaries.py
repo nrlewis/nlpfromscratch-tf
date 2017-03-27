@@ -1,4 +1,8 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 import tensorflow as tf
+
 def activation_summary(W): 
   ''' shamelessly stolen from CIFAR 10 in TF tutorial  :) ''' 
 

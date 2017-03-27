@@ -35,10 +35,13 @@ And a position vectore will show relative position to the term to classify
 ]
 
 '''
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import tensorflow as tf
-from summaries import activation_summary
-from loss import add_loss_var
+from .summaries import activation_summary
+from .loss import add_loss_var
 
 def conv_max(input_batch, kernel_ht, n_kernels,  
     padding='VALID', strides=[1,1,1,1], lambda_=0.001): 
