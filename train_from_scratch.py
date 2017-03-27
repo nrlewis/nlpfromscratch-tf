@@ -18,6 +18,7 @@ def run(FLAGS):
   valid_reader = CSVReader(FLAGS.valid_path, FLAGS.batch_size)
   seq_len = train_reader.seq_len
   num_feats = train_reader.num_feats
+  chkpt = os.path.join(FLAGS.log_idr, 'nlpfromscratch')
 
   with tf.Graph().as_default():
 
@@ -68,7 +69,7 @@ def run(FLAGS):
     embeddings.embed_visualization(summary_writer, FLAGS.log_dir, 
         FLAGS.vocab_path)
 
-    saver = tf.train.Saver(tf.global_variables())
+    saver = tf.train.Saver(max_to_keep=3)
 
     sess.run(tf.global_variables_initializer())
     sess.run(tf.tables_initializer())
@@ -79,7 +80,7 @@ def run(FLAGS):
                                     feed_dict=feed_dict)
       
       if gs % 10 == 0: 
-        print gs, FLAGS.epochs, step_loss
+        print gs, train_reader.epoch, FLAGS.max_epochs,  step_loss
 
       if gs % 500 == 0: 
         print 'evaluating'
@@ -88,7 +89,7 @@ def run(FLAGS):
         print '%d / %d: P: %.3f, R: %.3f, F1: %.3f' %(train_reader.epoch, gs, 
                                                       p,r,f)
         summary_writer.add_summary(summ, gs)
-        saver.save(sess, FLAGS.log_dir + '/nlpfromscratch', gs)
+        saver.save(sess, chkpt, gs)
 if __name__ == '__main__': 
   
     FLAGS=parser.parse_args() 
