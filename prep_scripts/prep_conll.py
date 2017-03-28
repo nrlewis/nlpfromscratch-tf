@@ -93,7 +93,7 @@ def prep_window(df):
   dfs = []
 
   for sent_id in sent_ids: 
-    print 'windowing sentence %d' %sent_id
+    print('windowing sentence %d' %sent_id)
     sent_df = df[df.sent_id == sent_id]
     windowed = window_sent(sent_df, args.winlen)
     dfs.append(windowed)
@@ -191,7 +191,7 @@ def prep_sentence_conv(df, seq_len):
   position_feats = to_str_feat(positions)
   
   for sent_id in sent_ids: 
-    print 'expanding sentence %d' %sent_id
+    print( 'expanding sentence %d' %sent_id)
     sent_df = df[df.sent_id == sent_id]
     expanded = expand_sent(sent_df,seq_len, position_feats)
     dfs.append(expanded)

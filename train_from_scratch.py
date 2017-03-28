@@ -23,7 +23,7 @@ def run(FLAGS):
   valid_reader = CSVReader(FLAGS.valid_path, FLAGS.batch_size)
   seq_len = train_reader.seq_len
   num_feats = train_reader.num_feats
-  chkpt = os.path.join(FLAGS.log_idr, 'nlpfromscratch')
+  chkpt = os.path.join(FLAGS.log_dir, 'nlpfromscratch')
 
   with tf.Graph().as_default():
 
@@ -85,14 +85,14 @@ def run(FLAGS):
                                     feed_dict=feed_dict)
       
       if gs % 10 == 0: 
-        print gs, train_reader.epoch, FLAGS.max_epochs,  step_loss
+        print(gs, train_reader.epoch, FLAGS.max_epochs,  step_loss)
 
       if gs % 500 == 0: 
-        print 'evaluating'
+        print('evaluating')
         p,r,f = prf_eval(valid_reader, predict, multi_vocab, sess, tokens_pl, 
                         features_pl)
-        print '%d / %d: P: %.3f, R: %.3f, F1: %.3f' %(train_reader.epoch, gs, 
-                                                      p,r,f)
+        print('%d / %d: P: %.3f, R: %.3f, F1: %.3f' %(train_reader.epoch, gs, 
+                                                      p,r,f))
         summary_writer.add_summary(summ, gs)
         saver.save(sess, chkpt, gs)
 if __name__ == '__main__': 
